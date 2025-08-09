@@ -39,18 +39,14 @@ def test_capitalize_negative(string_utils, input_str, expected):
         assert string_utils.capitalize(input_str) == expected
 
 
-@pytest.fixture
-def string_utils():
-    return StringUtils()
-
-
 # Позитивные тесты
 @pytest.mark.positive
 @pytest.mark.parametrize(
     "input_str, expected",
     [
         ("   leadership", "leadership"),  # удаление пробелов в начале строки
-        ("   brave heart", "brave heart",),  # удаление пробелов только в начале строки
+        ("   brave heart", "brave heart",),
+        # удаление пробелов только в начале строки
         ("importance", "importance"),  # строка без пробелов в начале
     ],
 )
@@ -72,11 +68,6 @@ def test_trim_negative(string_utils, input_str, expected):
     assert string_utils.trim(input_str) == expected
 
 
-@pytest.fixture
-def string_utils():
-    return StringUtils()
-
-
 # Позитивные тесты
 @pytest.mark.positive
 @pytest.mark.parametrize(
@@ -96,18 +87,15 @@ def test_contains_positive(string_utils, input_str, symbol, expected):
 @pytest.mark.parametrize(
     "input_str, symbol, expected",
     [
-        ("", "", False),  # пустая строка и пустой символ, результат False
-        ("leadership", "", False),  # непустая строка и пустой символ, результат False
-        ("leadership", "z", False),  # символ не найден в строке, результат False
+        ("", " ", False),  # пустая строка и пустой символ, результат False
+        ("leadership", "L", False),
+        # непустая строка и пустой символ, результат False
+        ("leadership", "z", False),
+        # символ не найден в строке, результат False
     ],
 )
 def test_contains_negative(string_utils, input_str, symbol, expected):
     assert string_utils.contains(input_str, symbol) == expected
-
-
-@pytest.fixture
-def string_utils():
-    return StringUtils()
 
 
 # Позитивные тесты
@@ -129,9 +117,12 @@ def test_delete_symbol_positive(string_utils, input_str, symbol, expected):
 @pytest.mark.parametrize(
     "input_str, symbol, expected",
     [
-        ("leadership", "", "leadership"),  # удаление пустого символа, строка не изменяется
-        ("leadership", "w", "leadership"),  # символ отсутствует, строка не изменяется
-        ("", "b", ""),  # удаление символа из пустой строки, результат пустая строка
+        ("leadership", "", "leadership"),
+        # удаление пустого символа, строка не изменяется
+        ("leadership", "w", "leadership"),
+        # символ отсутствует, строка не изменяется
+        ("", "b", ""),
+        # удаление символа из пустой строки, результат пустая строка
     ],
 )
 def test_delete_symbol_negative(string_utils, input_str, symbol, expected):
