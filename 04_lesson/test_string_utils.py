@@ -24,19 +24,20 @@ def test_capitalize_positive(string_utils, input_str, expected):
 # Негативные тесты
 @pytest.mark.negative
 @pytest.mark.parametrize(
-    "input_str, expected",
+    "input_str, expected_exception",
     [
-        ("135ace", "135ace"),  # цифры с буквами в строке
-        ("", ""),  # пустая строка
-        ("   ", "   "),  # строка с пробелами
+        ("135ace", None),  # цифры с буквами в строке
+        ("", None),  # пустая строка
+        ("   ", None),  # строка с пробелами
+        (None, AttributeError),  # None значение
     ],
 )
-def test_capitalize_negative(string_utils, input_str, expected):
-    if input_str is None:
-        with pytest.raises(AttributeError):
-            string_utils.capitilize(input_str)
+def test_capitalize_negative(string_utils, input_str, expected_exception):
+    if expected_exception:
+        with pytest.raises(expected_exception):
+            string_utils.capitalize(input_str)
     else:
-        assert string_utils.capitalize(input_str) == expected
+        assert string_utils.capitalize(input_str) == input_str
 
 
 # Позитивные тесты
@@ -87,9 +88,9 @@ def test_contains_positive(string_utils, input_str, symbol, expected):
 @pytest.mark.parametrize(
     "input_str, symbol, expected",
     [
-        ("", " ", False),  # пустая строка и пустой символ, результат False
+        ("", " ", False),  # пустая строка и пробел, результат False
         ("leadership", "L", False),
-        # непустая строка и пустой символ, результат False
+        # непустая строка и заглавная буква, результат False
         ("leadership", "z", False),
         # символ не найден в строке, результат False
     ],
