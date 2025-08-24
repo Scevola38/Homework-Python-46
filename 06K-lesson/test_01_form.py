@@ -1,69 +1,51 @@
-import pytest
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.edge.service import Service as EdgeService
-from selenium.webdriver.edge.options import Options as EdgeOptions
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.edge.service import Service as EdgeService
+import pytest
 
-@pytest.fixture(scope="function")
+
+@pytest.fixture(scope="module")
 def driver():
-    """
-    Pytest fixture для создания и закрытия WebDriver Edge.
-    """
-    edge_options = EdgeOptions()
-    edge_service = EdgeService(executable_path="msedgedriver.exe")  # Замените при необходимости
-    driver = webdriver.Edge(service=edge_service, options=edge_options)
-    yield driver  # Предоставляем driver для тестов
+    service = EdgeService(
+        executable_path="C:\\Users\\Юзер\\Downloads\\edgedriver_win64\\"
+                        "msedgedriver.exe")
+    driver = webdriver.Edge(service=service)
+    yield driver
     driver.quit()
 
 
-def fill_form(driver):
-    """
-    Функция для заполнения формы на странице.
-    """
-    driver.get("https://bonigarcia.dev/selenium-webdriver-java/data-types.html")
+def test_data_types_form(driver):
+    driver.get(
+        "https://bonigarcia.dev/selenium-webdriver-java/data-types.html")
 
-    # Явные ожидания для загрузки элементов и их доступности
-    WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.NAME, "firstName"))
-    )
-
-    driver.find_element(By.NAME, "firstName").send_keys("Иван")
-    driver.find_element(By.NAME, "lastName").send_keys("Петров")
+    # Заполняем форму
+    driver.find_element(By.NAME, "first-name").send_keys("Иван")
+    driver.find_element(By.NAME, "last-name").send_keys("Петров")
     driver.find_element(By.NAME, "address").send_keys("Ленина, 55-3")
-    driver.find_element(By.NAME, "eMail").send_keys("test@skypro.com")
-    driver.find_element(By.NAME, "phoneNumber").send_keys("+7985899998787")
+    driver.find_element(By.NAME, "e-mail").send_keys("test@skypro.com")
+    driver.find_element(By.NAME, "phone").send_keys("+7985899998787")
+    driver.find_element(By.NAME, "zip-code").send_keys("")  # Оставляем пустым
     driver.find_element(By.NAME, "city").send_keys("Москва")
     driver.find_element(By.NAME, "country").send_keys("Россия")
-    driver.find_element(By.NAME, "jobPosition").send_keys("QA")
+    driver.find_element(By.NAME, "job-position").send_keys("QA")
     driver.find_element(By.NAME, "company").send_keys("SkyPro")
 
-    # Пример ожидания для кликабельности кнопки (если она есть)
-    # try:
-    #     submit_button = WebDriverWait(driver, 10).until(
-    #         EC.element_to_be_clickable((By.CSS_SELECTOR, "button.submit"))
-    #     )
-    #     submit_button.click()
-    # except:
-    #     print("Кнопка Submit не найдена или не кликабельна.")
+    # Отправляем форму
+    driver.find_element(By.CSS_SELECTOR, "button[type='submit']").click()
 
-def test_fill_form_success(driver):
-    """
-    Pytest test для заполнения формы.
-    """
-    fill_form(driver)
+    # Проверяем появление элемента с ошибкой для zip-code
+    try:
+        # Явное ожидание: ждем, пока появится элемент div с id="zip-code"
+        zip_code_error_element = WebDriverWait(driver, 20).until(
+            EC.presence_of_element_located((By.ID, "zip-code"))
+        )
 
-    # Пример проверки успешного заполнения (замените на актуальную проверку)
-    # WebDriverWait(driver, 10).until(
-    #     EC.title_contains("Success")  # Пример: ожидание изменения заголовка страницы
-    # )
-    # assert "Success" in driver.title #  Пример: проверка заголовка
+        # Проверяем, что текст элемента равен "N/A"
+        assert (zip_code_error_element.text ==
+                "N/A"), "Текст элемента zip-code не соответствует ожидаемому"
 
-    # Важно!  Нужно добавить проверки, которые подтверждают успешное выполнение теста.
-    # Например, проверить, что появилось сообщение об успешной отправке формы,
-    # или что значения в полях формы были отправлены.
-    # Без проверок тест будет просто запускать код, но не проверять результат.
-    # В данном случае, т.к. нет submit, то и подтвердить нечего.
-    # Чтобы не было предупреждения от Pytest, добавим assert True
-    assert True
+    except TimeoutException:
+        pytest.fail("Не дождались появления элемента div с id='zip-code'")

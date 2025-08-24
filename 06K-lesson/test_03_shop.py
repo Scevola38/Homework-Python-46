@@ -8,11 +8,10 @@ from selenium.webdriver.support import expected_conditions as EC
 
 @pytest.fixture()
 def driver():
-    """
-    Фикстура для создания и закрытия экземпляра драйвера Firefox.
-    """
-    service = FirefoxService(executable_path="C:/Users/Юзер/Downloads/geckodriver-v0.36.0-win64/geckodriver.exe")
-    # Укажите правильный путь к geckodriver
+
+    service = FirefoxService(executable_path="C:/Users/Юзер/Downloads/"
+                                             "geckodriver-v0.36.0-win64/"
+                                             "geckodriver.exe")
     driver = webdriver.Firefox(service=service)
     yield driver
     driver.quit()
@@ -20,7 +19,8 @@ def driver():
 
 def test_purchase_flow(driver):
     """
-    Тест, автоматизирующий процесс покупки на saucedemo.com и проверяющий итоговую сумму.
+    Тест, автоматизирующий процесс покупки на saucedemo.com
+    и проверяющий итоговую сумму.
     """
 
     # 1. Открытие сайта магазина
@@ -43,8 +43,12 @@ def test_purchase_flow(driver):
     ]
 
     for item_name in items_to_add:
-        add_to_cart_button = driver.find_element(By.XPATH,
-                                                 f"//div[text()='{item_name}']/ancestor::div[@class='inventory_item']//button[text()='Add to cart']")
+        add_to_cart_button = driver.find_element(
+            By.XPATH,
+            f"//div[text()='{item_name}']/"
+            f"ancestor::div[@class='inventory_item']//"
+            f"button[text()='Add to cart']"
+        )
         add_to_cart_button.click()
 
     # 4. Переход в корзину
@@ -69,7 +73,8 @@ def test_purchase_flow(driver):
     # 7. Получение итоговой стоимости
     try:
         total_element = WebDriverWait(driver, 20).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, ".summary_total_label"))
+            EC.presence_of_element_located((By.CSS_SELECTOR,
+                                            ".summary_total_label"))
         )
     except Exception as e:
         driver.save_screenshot("error.png")
@@ -81,5 +86,8 @@ def test_purchase_flow(driver):
 
     # 8. Проверка итоговой суммы
     expected_total = 58.29
-    assert abs(
-        total_value - expected_total) < 0.01, f"Итоговая сумма не совпадает. Ожидалось: {expected_total}, Получено: {total_value}"  # допуск погрешности из-за округления
+    assert abs(total_value - expected_total) < 0.01, (
+        f"Итоговая сумма не совпадает. "
+        f"Ожидалось:{expected_total}, "
+        f"Получено: {total_value}"
+    )
